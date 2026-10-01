@@ -204,7 +204,7 @@ L2Hub.TextGradientAnimationTime = 0;
 L2Hub.TextGradientAccumulator = 0;
 L2Hub.TextGradientLabels = {};
 L2Hub.TextGradientObjects = {};
-L2Hub.GlobalLogo = "rbxassetid://120932910004936";
+L2Hub.GlobalLogo = "rbxassetid://105349270202991";
 L2Hub.ImageColorMapping = "rbxassetid://4155801252";
 L2Hub.IconBase = "https://raw.githubusercontent.com/nhfudzfsrzggt/brigida/refs/heads/main/";
 L2Hub.Icons = {};
@@ -7955,7 +7955,7 @@ function L2Hub:CreateWindow(Config)
 pcall(function() GameName = game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name end)
 
     Config = L2Hub:ProcessParams(Config , {
-	Logo = "rbxassetid://120932910004936",
+	Logo = "rbxassetid://105349270202991",
 	Name = "L2-HUB",
 	Content = GameName,
 	    Size = L2Hub.IsMobile and L2Hub.Scales.Mobile or L2Hub.  Scales.Large,
