@@ -4826,9 +4826,19 @@ function L2Hub:RegisiterHandler(Handler: Frame , Signal)
 			local SearchStroke = Instance.new("UIStroke")
 			local SearchIcon = Instance.new("ImageLabel")
 			local SearchBox = Instance.new("TextBox")
-			local DropdownScrollFrame = Instance.new("ScrollingFrame")
-			local UIListLayout = Instance.new("UIListLayout")
-			local Shadow = L2Hub:CreateShadow(DropdownHandler);
+			
+local DropdownScrollFrame = Instance.new("ScrollingFrame")
+local UIListLayout = Instance.new("UIListLayout")
+local SelectAllRow = Instance.new("Frame")
+local SelectAllBtn = Instance.new("Frame")
+local SelectAllBtnCorner = Instance.new("UICorner")
+local SelectAllBtnStroke = Instance.new("UIStroke")
+local SelectAllLabel = Instance.new("TextLabel")
+local ClearAllBtn = Instance.new("Frame")
+local ClearAllBtnCorner = Instance.new("UICorner")
+local ClearAllBtnStroke = Instance.new("UIStroke")
+local ClearAllLabel = Instance.new("TextLabel")
+local Shadow = L2Hub:CreateShadow(DropdownHandler);
 
 			DropdownHandler.Name = L2Hub.RandomString();
 			DropdownHandler.Parent = L2Hub.ScreenGui;
@@ -4916,11 +4926,79 @@ function L2Hub:RegisiterHandler(Handler: Frame , Signal)
 			SearchBox.Text = ""
 			SearchBox.TextColor3 = Color3.fromRGB(255, 255, 255)
 			SearchBox.PlaceholderColor3 = Color3.fromRGB(140, 140, 155)
-			SearchBox.TextSize = 12.000
-			SearchBox.TextTransparency = 0.250
-			SearchBox.TextXAlignment = Enum.TextXAlignment.Left
+			
+SearchBox.TextSize = 12.000
+SearchBox.TextTransparency = 0.250
+SearchBox.TextXAlignment = Enum.TextXAlignment.Left
 
-			DropdownScrollFrame.Name = L2Hub.RandomString();
+SelectAllRow.Name = L2Hub.RandomString();
+SelectAllRow.Parent = DropdownHandler
+SelectAllRow.AnchorPoint = Vector2.new(0.5, 0)
+SelectAllRow.BackgroundTransparency = 1
+SelectAllRow.BorderSizePixel = 0
+SelectAllRow.Position = UDim2.new(0.5, 0, 0, Config.Search and 35 or 5)
+SelectAllRow.Size = UDim2.new(1, -10, 0, 24)
+SelectAllRow.Visible = Config.Multi == true
+SelectAllRow.ZIndex = ZINdex + 127
+
+SelectAllBtn.Name = L2Hub.RandomString();
+SelectAllBtn.Parent = SelectAllRow
+SelectAllBtn.BackgroundColor3 = Color3.fromRGB(26, 28, 36)
+SelectAllBtn.BackgroundTransparency = 0.300
+SelectAllBtn.BorderSizePixel = 0
+SelectAllBtn.Position = UDim2.new(0, 0, 0, 0)
+SelectAllBtn.Size = UDim2.new(0.5, -3, 1, 0)
+SelectAllBtn.ZIndex = ZINdex + 128
+
+SelectAllBtnCorner.CornerRadius = UDim.new(0, 5)
+SelectAllBtnCorner.Parent = SelectAllBtn
+
+SelectAllBtnStroke.Transparency = 0.650
+SelectAllBtnStroke.Color = Color3.fromRGB(45, 48, 58)
+SelectAllBtnStroke.Parent = SelectAllBtn
+
+SelectAllLabel.Name = L2Hub.RandomString();
+SelectAllLabel.Parent = SelectAllBtn
+SelectAllLabel.BackgroundTransparency = 1
+SelectAllLabel.BorderSizePixel = 0
+SelectAllLabel.Size = UDim2.fromScale(1, 1)
+SelectAllLabel.ZIndex = ZINdex + 129
+SelectAllLabel.Font = Enum.Font.GothamBold
+SelectAllLabel.Text = "Select all"
+SelectAllLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+SelectAllLabel.TextSize = 11.000
+SelectAllLabel.TextTransparency = 0.250
+
+ClearAllBtn.Name = L2Hub.RandomString();
+ClearAllBtn.Parent = SelectAllRow
+ClearAllBtn.BackgroundColor3 = Color3.fromRGB(26, 28, 36)
+ClearAllBtn.BackgroundTransparency = 0.300
+ClearAllBtn.BorderSizePixel = 0
+ClearAllBtn.Position = UDim2.new(0.5, 3, 0, 0)
+ClearAllBtn.Size = UDim2.new(0.5, -3, 1, 0)
+ClearAllBtn.ZIndex = ZINdex + 128
+
+ClearAllBtnCorner.CornerRadius = UDim.new(0, 5)
+ClearAllBtnCorner.Parent = ClearAllBtn
+
+ClearAllBtnStroke.Transparency = 0.650
+ClearAllBtnStroke.Color = Color3.fromRGB(45, 48, 58)
+ClearAllBtnStroke.Parent = ClearAllBtn
+
+ClearAllLabel.Name = L2Hub.RandomString();
+ClearAllLabel.Parent = ClearAllBtn
+ClearAllLabel.BackgroundTransparency = 1
+ClearAllLabel.BorderSizePixel = 0
+ClearAllLabel.Size = UDim2.fromScale(1, 1)
+ClearAllLabel.ZIndex = ZINdex + 129
+ClearAllLabel.Font = Enum.Font.GothamBold
+ClearAllLabel.Text = "Clear all"
+ClearAllLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+ClearAllLabel.TextSize = 11.000
+ClearAllLabel.TextTransparency = 0.250
+
+DropdownScrollFrame.Name = L2Hub.RandomString();			
+			
 			DropdownScrollFrame.Parent = DropdownHandler
 			DropdownScrollFrame.Active = true
 			DropdownScrollFrame.AnchorPoint = Vector2.new(0.5, 0)
@@ -4928,8 +5006,15 @@ function L2Hub:RegisiterHandler(Handler: Frame , Signal)
 			DropdownScrollFrame.BackgroundTransparency = 1.000
 			DropdownScrollFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
 			DropdownScrollFrame.BorderSizePixel = 0
-			DropdownScrollFrame.Position = Config.Search and UDim2.new(0.5, 0, 0, 35) or UDim2.new(0.5, 0, 0, 2)
-			DropdownScrollFrame.Size = Config.Search and UDim2.new(1, -5, 1, -38) or UDim2.new(1, -5, 1, -5)
+
+local SelectAllOffset = Config.Multi and 30 or 0;
+DropdownScrollFrame.Position = Config.Search
+    and UDim2.new(0.5, 0, 0, 35 + SelectAllOffset)
+    or UDim2.new(0.5, 0, 0, 2 + SelectAllOffset)
+DropdownScrollFrame.Size = Config.Search
+    and UDim2.new(1, -5, 1, -38 - SelectAllOffset)
+    or UDim2.new(1, -5, 1, -5 - SelectAllOffset)
+
 			DropdownScrollFrame.ZIndex = ZINdex + 127
 			DropdownScrollFrame.ScrollBarThickness = 0
 
@@ -4939,9 +5024,11 @@ function L2Hub:RegisiterHandler(Handler: Frame , Signal)
 			UIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 			UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 
-			local GetSearchOffset = LPH_NO_VIRTUALIZE(function()
-				return (Config.Search == true and 35) or 5;
-			end);
+local GetSearchOffset = LPH_NO_VIRTUALIZE(function()
+    local Base = (Config.Search == true and 35) or 5;
+    if Config.Multi then Base = Base + 30; end;
+    return Base;
+end);
 
 			local UpdateDropdownSize = LPH_NO_VIRTUALIZE(function()
 				local ContentHeight = math.min(UIListLayout.AbsoluteContentSize.Y + 5, 250);
@@ -4993,38 +5080,77 @@ function L2Hub:RegisiterHandler(Handler: Frame , Signal)
 				end;
 			end);
 
-			local SetPosition = LPH_NO_VIRTUALIZE(function()
-				local Placement = string.lower(tostring(Config.DropdownPosition or "Dropdown"));
+local SetPosition = LPH_NO_VIRTUALIZE(function()
+    local Placement = string.lower(tostring(Config.DropdownPosition or "Dropdown"));
 
-				if Placement == "center" or Placement == "middle" then
-					local WindowRoot = GetDropdownWindowRoot();
+    if Placement == "center" or Placement == "middle" then
+        local WindowRoot = GetDropdownWindowRoot();
 
-					DropdownHandler.AnchorPoint = Vector2.new(0.5, 0.5);
+        DropdownHandler.AnchorPoint = Vector2.new(0.5, 0.5);
 
-					if WindowRoot and WindowRoot.Parent then
-						DropdownHandler.Position = UDim2.fromOffset(
-							WindowRoot.AbsolutePosition.X + (WindowRoot.AbsoluteSize.X / 2),
-							WindowRoot.AbsolutePosition.Y + (WindowRoot.AbsoluteSize.Y / 2)
-						);
-					else
-						DropdownHandler.Position = UDim2.fromOffset(
-							L2Hub.ScreenGui.AbsoluteSize.X / 2,
-							L2Hub.ScreenGui.AbsoluteSize.Y / 2
-						);
-					end;
+        if WindowRoot and WindowRoot.Parent then
+            DropdownHandler.Position = UDim2.fromOffset(
+                WindowRoot.AbsolutePosition.X + (WindowRoot.AbsoluteSize.X / 2),
+                WindowRoot.AbsolutePosition.Y + (WindowRoot.AbsoluteSize.Y / 2)
+            );
+        else
+            DropdownHandler.Position = UDim2.fromOffset(
+                L2Hub.ScreenGui.AbsoluteSize.X / 2,
+                L2Hub.ScreenGui.AbsoluteSize.Y / 2
+            );
+        end;
 
-					return;
-				end;
+        return;
+    end;
 
-				if L2Hub:MoreThanHalfY(Dropdown.AbsolutePosition.Y + 85) then
-					DropdownHandler.AnchorPoint = Vector2.new(0.5,1)
-				else
-					DropdownHandler.AnchorPoint = Vector2.new(0.5,0)
-				end;
+    local WindowRoot = GetDropdownWindowRoot();
+    local HandlerSize = DropdownHandler.AbsoluteSize;
+    local DropX = Dropdown.AbsolutePosition.X;
+    local DropY = Dropdown.AbsolutePosition.Y;
+    local DropW = Dropdown.AbsoluteSize.X;
+    local DropH = Dropdown.AbsoluteSize.Y;
 
-				DropdownHandler.Position = UDim2.fromOffset(Dropdown.AbsolutePosition.X + (DropdownHandler.AbsoluteSize.X / 2), Dropdown.AbsolutePosition.Y + 85);
+    local CenterX = DropX + (DropW / 2);
+    local OpenBelow = not L2Hub:MoreThanHalfY(DropY + 85);
 
-			end);
+    local TargetY = OpenBelow and (DropY + DropH + 5) or (DropY - 5);
+
+    local WinLeft, WinTop, WinRight, WinBottom;
+    if WindowRoot and WindowRoot.Parent then
+        WinLeft = WindowRoot.AbsolutePosition.X;
+        WinTop = WindowRoot.AbsolutePosition.Y;
+        WinRight = WinLeft + WindowRoot.AbsoluteSize.X;
+        WinBottom = WinTop + WindowRoot.AbsoluteSize.Y;
+    else
+        WinLeft = L2Hub.ScreenGui.AbsolutePosition.X;
+        WinTop = L2Hub.ScreenGui.AbsolutePosition.Y;
+        WinRight = WinLeft + L2Hub.ScreenGui.AbsoluteSize.X;
+        WinBottom = WinTop + L2Hub.ScreenGui.AbsoluteSize.Y;
+    end;
+
+    local HandlerLeft = CenterX - (HandlerSize.X / 2);
+    local HandlerTop = OpenBelow and TargetY or (TargetY - HandlerSize.Y);
+
+    local PadX = 8;
+    local PadY = 8;
+
+    if HandlerLeft < WinLeft + PadX then
+        HandlerLeft = WinLeft + PadX;
+    end;
+    if HandlerLeft + HandlerSize.X > WinRight - PadX then
+        HandlerLeft = WinRight - PadX - HandlerSize.X;
+    end;
+
+    if HandlerTop < WinTop + PadY then
+        HandlerTop = WinTop + PadY;
+    end;
+    if HandlerTop + HandlerSize.Y > WinBottom - PadY then
+        HandlerTop = WinBottom - PadY - HandlerSize.Y;
+    end;
+
+    DropdownHandler.AnchorPoint = Vector2.new(0, 0);
+    DropdownHandler.Position = UDim2.fromOffset(HandlerLeft, HandlerTop);
+end);
 
 			DropdownLib.SetFrameRender = LPH_NO_VIRTUALIZE(function(value)
 				DropdownLib.OpenSignal:SetValue(value);
@@ -5056,11 +5182,20 @@ function L2Hub:RegisiterHandler(Handler: Frame , Signal)
 						TextTransparency = Config.Search and 0.450 or 1
 					})
 
-					L2Hub.PlayAnimate(SearchBox , SlowyTween , {
-						TextTransparency = Config.Search and 0.250 or 1
-					})
+L2Hub.PlayAnimate(SearchBox , SlowyTween , {
+    TextTransparency = Config.Search and 0.250 or 1
+})
 
-					if Config.AutoUpdate then
+if Config.Multi then
+    L2Hub.PlayAnimate(SelectAllBtn, SlowyTween, { BackgroundTransparency = 0.300 })
+    L2Hub.PlayAnimate(SelectAllBtnStroke, SlowyTween, { Transparency = 0.650 })
+    L2Hub.PlayAnimate(SelectAllLabel, SlowyTween, { TextTransparency = 0.250 })
+    L2Hub.PlayAnimate(ClearAllBtn, SlowyTween, { BackgroundTransparency = 0.300 })
+    L2Hub.PlayAnimate(ClearAllBtnStroke, SlowyTween, { Transparency = 0.650 })
+    L2Hub.PlayAnimate(ClearAllLabel, SlowyTween, { TextTransparency = 0.250 })
+end;
+
+                        if Config.AutoUpdate then
 						DropdownLib:Generate();
 					end;
 				else
@@ -5083,18 +5218,77 @@ function L2Hub:RegisiterHandler(Handler: Frame , Signal)
 						TextTransparency = 1
 					})
 
-					L2Hub.PlayAnimate(SearchBox , SlowyTween , {
-						TextTransparency = 1
-					})
+L2Hub.PlayAnimate(SearchBox , SlowyTween , {
+    TextTransparency = 1
+})
 
-					Shadow:Render(false);
-				end;
-			end);
+if Config.Multi then
+    L2Hub.PlayAnimate(SelectAllBtn, SlowyTween, { BackgroundTransparency = 1 })
+    L2Hub.PlayAnimate(SelectAllBtnStroke, SlowyTween, { Transparency = 1 })
+    L2Hub.PlayAnimate(SelectAllLabel, SlowyTween, { TextTransparency = 1 })
+    L2Hub.PlayAnimate(ClearAllBtn, SlowyTween, { BackgroundTransparency = 1 })
+    L2Hub.PlayAnimate(ClearAllBtnStroke, SlowyTween, { Transparency = 1 })
+    L2Hub.PlayAnimate(ClearAllLabel, SlowyTween, { TextTransparency = 1 })
+end;
 
-			DropdownLib.SetFrameRender(false);
-		end;
+Shadow:Render(false);					
+	end;
+end);
 
-		local SecureSignal;
+DropdownLib.SetFrameRender(false);
+end;
+
+if Config.Multi then
+    local SelectAllInput = L2Hub:CreateInput(SelectAllBtn, function()
+        Config.Default = {};
+
+        for _, Value in next, Config.Values do
+            Config.Default[Value] = true;
+        end;
+
+        BasedLabel.Text = L2Hub.ParseDropdown(Config.Default);
+
+        for _, Refresh in next, DropdownLib.Refuse do
+            task.spawn(Refresh);
+        end;
+
+        L2Hub:FireCallback(Config.Callback, Config.Name, Config.Default);
+    end)
+
+    local ClearAllInput = L2Hub:CreateInput(ClearAllBtn, function()
+        Config.Default = {};
+
+        BasedLabel.Text = L2Hub.ParseDropdown(Config.Default);
+
+        for _, Refresh in next, DropdownLib.Refuse do
+            task.spawn(Refresh);
+        end;
+
+        L2Hub:FireCallback(Config.Callback, Config.Name, Config.Default);
+    end)
+
+    L2Hub:AddSignal(SelectAllInput.MouseEnter:Connect(function()
+        L2Hub.PlayAnimate(SelectAllBtn, SlowyTween, { BackgroundTransparency = 0.100 })
+        L2Hub.PlayAnimate(SelectAllLabel, SlowyTween, { TextTransparency = 0 })
+    end))
+
+    L2Hub:AddSignal(SelectAllInput.MouseLeave:Connect(function()
+        L2Hub.PlayAnimate(SelectAllBtn, SlowyTween, { BackgroundTransparency = 0.300 })
+        L2Hub.PlayAnimate(SelectAllLabel, SlowyTween, { TextTransparency = 0.250 })
+    end))
+
+    L2Hub:AddSignal(ClearAllInput.MouseEnter:Connect(function()
+        L2Hub.PlayAnimate(ClearAllBtn, SlowyTween, { BackgroundTransparency = 0.100 })
+        L2Hub.PlayAnimate(ClearAllLabel, SlowyTween, { TextTransparency = 0 })
+    end))
+
+    L2Hub:AddSignal(ClearAllInput.MouseLeave:Connect(function()
+        L2Hub.PlayAnimate(ClearAllBtn, SlowyTween, { BackgroundTransparency = 0.300 })
+        L2Hub.PlayAnimate(ClearAllLabel, SlowyTween, { TextTransparency = 0.250 })
+    end))
+end;
+
+        local SecureSignal;					
 		L2Hub:CreateInput(Dropdown , LPH_NO_VIRTUALIZE(function()
 			if SecureSignal then
 				SecureSignal:Disconnect();
@@ -5219,58 +5413,85 @@ function L2Hub:RegisiterHandler(Handler: Frame , Signal)
 
 				local MIcon , MarkItem = nil , nil;
 
-				if Config.Multi then
-					local Icon = Instance.new("ImageLabel")
+if Config.Multi then
+    local CheckBox = Instance.new("Frame")
+    CheckBox.Name = L2Hub.RandomString();
+    CheckBox.Parent = ItemFrame;
+    CheckBox.AnchorPoint = Vector2.new(0, 0.5)
+    CheckBox.BackgroundColor3 = Color3.fromRGB(26, 28, 36)
+    CheckBox.BackgroundTransparency = 0
+    CheckBox.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    CheckBox.BorderSizePixel = 0
+    CheckBox.Position = UDim2.new(0, 6, 0.5, 0)
+    CheckBox.Size = UDim2.new(0, 16, 0, 16)
+    CheckBox.ZIndex = ZINdex + 1259
 
-					Icon.Parent = ItemFrame;
-					Icon.AnchorPoint = Vector2.new(0, 0.5)
-					Icon.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-					Icon.BackgroundTransparency = 1.000
-					Icon.BorderColor3 = Color3.fromRGB(0, 0, 0)
-					Icon.BorderSizePixel = 0
-					Icon.Position = UDim2.new(0, 5, 0.5, 0)
-					Icon.Size = UDim2.new(0, 20, 0, 20)
-					Icon.ZIndex = ZINdex + 1259
-					L2Hub:SetIconMode(Icon, "check")
-					Icon.ImageColor3 = Color3.fromRGB(223, 223, 223)
-					Icon.ImageTransparency = 1
-					Icon.ScaleType = Enum.ScaleType.Fit
+    local CheckCorner = Instance.new("UICorner")
+    CheckCorner.CornerRadius = UDim.new(0, 4)
+    CheckCorner.Parent = CheckBox
 
-					local VisiblewOfMult = LPH_NO_VIRTUALIZE(function()
-						if DropdownLib.IsMatch(Value) then
-							L2Hub.PlayAnimate(ItemLabel , VSlowTween , {
-								TextTransparency = IsDisabled and 0.600 or 0.200,
-								Position = UDim2.new(0, CustomIcon and 50 or 30, 0, 4)
-							})
+    local CheckStroke = Instance.new("UIStroke")
+    CheckStroke.Color = Color3.fromRGB(80, 82, 95)
+    CheckStroke.Transparency = 0.400
+    CheckStroke.Thickness = 1.2
+    CheckStroke.Parent = CheckBox
 
-							L2Hub.PlayAnimate(Icon , SlowyTween , {
-								TextTransparency = IsDisabled and 0.650 or 0.250
-							})
-							local FallbackText = Icon:FindFirstChild("ModernIconFallbackText");
-							if FallbackText then
-								FallbackText.TextTransparency = 0.250;
-							end;
+    local CheckIcon = Instance.new("ImageLabel")
+    CheckIcon.Name = L2Hub.RandomString();
+    CheckIcon.Parent = CheckBox
+    CheckIcon.AnchorPoint = Vector2.new(0.5, 0.5)
+    CheckIcon.BackgroundTransparency = 1
+    CheckIcon.BorderSizePixel = 0
+    CheckIcon.Position = UDim2.fromScale(0.5, 0.5)
+    CheckIcon.Size = UDim2.new(1, -4, 1, -4)
+    CheckIcon.ZIndex = ZINdex + 1260
+    L2Hub:SetIconMode(CheckIcon, "check")
+    CheckIcon.ImageColor3 = Color3.fromRGB(255, 255, 255)
+    CheckIcon.ImageTransparency = 1
+    CheckIcon.ScaleType = Enum.ScaleType.Fit
 
-							Lastone = ItemLabel;
-						else
+    local VisiblewOfMult = LPH_NO_VIRTUALIZE(function()
+        if DropdownLib.IsMatch(Value) then
+            L2Hub.PlayAnimate(ItemLabel , VSlowTween , {
+                TextTransparency = IsDisabled and 0.600 or 0.200,
+                Position = UDim2.new(0, CustomIcon and 50 or 30, 0, 4)
+            })
 
-							L2Hub.PlayAnimate(Icon , SlowyTween , {
-								TextTransparency = 1
-							})
-							local FallbackText = Icon:FindFirstChild("ModernIconFallbackText");
-							if FallbackText then
-								FallbackText.TextTransparency = 1;
-							end;
+            L2Hub.PlayAnimate(CheckBox , SlowyTween , {
+                BackgroundColor3 = IsDisabled and Color3.fromRGB(50, 50, 60) or L2Hub.AccentColor
+            })
 
-							L2Hub.PlayAnimate(ItemLabel , VSlowTween , {
-								TextTransparency = IsDisabled and 0.650 or 0.5,
-								Position = UDim2.new(0, CustomIcon and (Config.Multi and 50 or 34) or 15, 0, 4)
-							})
-						end;
-					end);
+            L2Hub.PlayAnimate(CheckStroke , SlowyTween , {
+                Transparency = 1
+            })
 
-					MIcon = Icon;
-					MarkItem = VisiblewOfMult;
+            L2Hub.PlayAnimate(CheckIcon , SlowyTween , {
+                ImageTransparency = IsDisabled and 0.500 or 0
+            })
+
+            Lastone = ItemLabel;
+        else
+            L2Hub.PlayAnimate(ItemLabel , VSlowTween , {
+                TextTransparency = IsDisabled and 0.650 or 0.5,
+                Position = UDim2.new(0, CustomIcon and (Config.Multi and 50 or 34) or 15, 0, 4)
+            })
+
+            L2Hub.PlayAnimate(CheckBox , SlowyTween , {
+                BackgroundColor3 = Color3.fromRGB(26, 28, 36)
+            })
+
+            L2Hub.PlayAnimate(CheckStroke , SlowyTween , {
+                Transparency = 0.400
+            })
+
+            L2Hub.PlayAnimate(CheckIcon , SlowyTween , {
+                ImageTransparency = 1
+            })
+        end;
+    end);
+
+    MIcon = CheckBox;
+    MarkItem = VisiblewOfMult;
 				else
 					local DefaultVisible = LPH_NO_VIRTUALIZE(function()
 						if DropdownLib.IsMatch(Value) then
@@ -5328,17 +5549,23 @@ function L2Hub:RegisiterHandler(Handler: Frame , Signal)
 							})
 						end;
 
-						if MIcon then
-							L2Hub.PlayAnimate(MIcon , SlowyTween , {
-								TextTransparency = 1
-							})
-							local FallbackText = MIcon:FindFirstChild("ModernIconFallbackText");
-							if FallbackText then
-								FallbackText.TextTransparency = 1;
-							end;
-						end;
-					end;
-				end)));
+if MIcon then
+    L2Hub.PlayAnimate(MIcon , SlowyTween , {
+        BackgroundTransparency = 1
+    })
+
+    local ChildStroke = MIcon:FindFirstChildOfClass("UIStroke");
+    if ChildStroke then
+        L2Hub.PlayAnimate(ChildStroke , SlowyTween , { Transparency = 1 })
+    end;
+
+    local ChildIcon = MIcon:FindFirstChildOfClass("ImageLabel");
+    if ChildIcon then
+        L2Hub.PlayAnimate(ChildIcon , SlowyTween , { ImageTransparency = 1 })
+            end;
+        end;
+    end;
+end)));
 
 				if Config.Multi then
 					local _,bth_signal = L2Hub:CreateInput(ItemFrame , LPH_NO_VIRTUALIZE(function()
