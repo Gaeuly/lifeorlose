@@ -5288,9 +5288,6 @@ if Config.Multi then
     end))
 end;
 
-DropdownLib.SetFrameRender(false);
-end;
-
 local SecureSignal;
 		L2Hub:CreateInput(Dropdown , LPH_NO_VIRTUALIZE(function()
 			if SecureSignal then
