@@ -5235,57 +5235,57 @@ Shadow:Render(false);
 	end;
 end);
 
-DropdownLib.SetFrameRender(false);
+if Config.Multi then
+	local SelectAllInput = L2Hub:CreateInput(SelectAllBtn, function()
+		Config.Default = {};
+
+		for _, Value in next, Config.Values do
+			Config.Default[Value] = true;
+		end;
+
+		BasedLabel.Text = L2Hub.ParseDropdown(Config.Default);
+
+		for _, Refresh in next, DropdownLib.Refuse do
+			task.spawn(Refresh);
+		end;
+
+		L2Hub:FireCallback(Config.Callback, Config.Name, Config.Default);
+	end)
+
+	local ClearAllInput = L2Hub:CreateInput(ClearAllBtn, function()
+		Config.Default = {};
+
+		BasedLabel.Text = L2Hub.ParseDropdown(Config.Default);
+
+		for _, Refresh in next, DropdownLib.Refuse do
+			task.spawn(Refresh);
+		end;
+
+		L2Hub:FireCallback(Config.Callback, Config.Name, Config.Default);
+	end)
+
+	L2Hub:AddSignal(SelectAllInput.MouseEnter:Connect(function()
+		L2Hub.PlayAnimate(SelectAllBtn, SlowyTween, { BackgroundTransparency = 0.100 })
+		L2Hub.PlayAnimate(SelectAllLabel, SlowyTween, { TextTransparency = 0 })
+	end))
+
+	L2Hub:AddSignal(SelectAllInput.MouseLeave:Connect(function()
+		L2Hub.PlayAnimate(SelectAllBtn, SlowyTween, { BackgroundTransparency = 0.300 })
+		L2Hub.PlayAnimate(SelectAllLabel, SlowyTween, { TextTransparency = 0.250 })
+	end))
+
+	L2Hub:AddSignal(ClearAllInput.MouseEnter:Connect(function()
+		L2Hub.PlayAnimate(ClearAllBtn, SlowyTween, { BackgroundTransparency = 0.100 })
+		L2Hub.PlayAnimate(ClearAllLabel, SlowyTween, { TextTransparency = 0 })
+	end))
+
+	L2Hub:AddSignal(ClearAllInput.MouseLeave:Connect(function()
+		L2Hub.PlayAnimate(ClearAllBtn, SlowyTween, { BackgroundTransparency = 0.300 })
+		L2Hub.PlayAnimate(ClearAllLabel, SlowyTween, { TextTransparency = 0.250 })
+	end))
 end;
 
-if Config.Multi then
-    local SelectAllInput = L2Hub:CreateInput(SelectAllBtn, function()
-        Config.Default = {};
-
-        for _, Value in next, Config.Values do
-            Config.Default[Value] = true;
-        end;
-
-        BasedLabel.Text = L2Hub.ParseDropdown(Config.Default);
-
-        for _, Refresh in next, DropdownLib.Refuse do
-            task.spawn(Refresh);
-        end;
-
-        L2Hub:FireCallback(Config.Callback, Config.Name, Config.Default);
-    end)
-
-    local ClearAllInput = L2Hub:CreateInput(ClearAllBtn, function()
-        Config.Default = {};
-
-        BasedLabel.Text = L2Hub.ParseDropdown(Config.Default);
-
-        for _, Refresh in next, DropdownLib.Refuse do
-            task.spawn(Refresh);
-        end;
-
-        L2Hub:FireCallback(Config.Callback, Config.Name, Config.Default);
-    end)
-
-    L2Hub:AddSignal(SelectAllInput.MouseEnter:Connect(function()
-        L2Hub.PlayAnimate(SelectAllBtn, SlowyTween, { BackgroundTransparency = 0.100 })
-        L2Hub.PlayAnimate(SelectAllLabel, SlowyTween, { TextTransparency = 0 })
-    end))
-
-    L2Hub:AddSignal(SelectAllInput.MouseLeave:Connect(function()
-        L2Hub.PlayAnimate(SelectAllBtn, SlowyTween, { BackgroundTransparency = 0.300 })
-        L2Hub.PlayAnimate(SelectAllLabel, SlowyTween, { TextTransparency = 0.250 })
-    end))
-
-    L2Hub:AddSignal(ClearAllInput.MouseEnter:Connect(function()
-        L2Hub.PlayAnimate(ClearAllBtn, SlowyTween, { BackgroundTransparency = 0.100 })
-        L2Hub.PlayAnimate(ClearAllLabel, SlowyTween, { TextTransparency = 0 })
-    end))
-
-    L2Hub:AddSignal(ClearAllInput.MouseLeave:Connect(function()
-        L2Hub.PlayAnimate(ClearAllBtn, SlowyTween, { BackgroundTransparency = 0.300 })
-        L2Hub.PlayAnimate(ClearAllLabel, SlowyTween, { TextTransparency = 0.250 })
-    end))
+DropdownLib.SetFrameRender(false);
 end;
 
 local SecureSignal;
