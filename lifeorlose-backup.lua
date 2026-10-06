@@ -4782,9 +4782,10 @@ function handle:AddDropdown(Config)
 		local ClearAllLabel = Instance.new("TextLabel")
 		local Shadow = L2Hub:CreateShadow(DropdownHandler);
 
+		local __WinRoot = (L2Hub.ActiveWindow and L2Hub.ActiveWindow.Root) or L2Hub.ScreenGui;
+
 		DropdownHandler.Name = L2Hub.RandomString();
-        local __WinRoot = (L2Hub.ActiveWindow and L2Hub.ActiveWindow.Root) or L2Hub.ScreenGui;
-        DropdownHandler.Parent = __WinRoot;
+		DropdownHandler.Parent = __WinRoot;
 		DropdownHandler.AnchorPoint = Vector2.new(0, 0)
 		DropdownHandler.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
 		DropdownHandler.BackgroundTransparency = 1
@@ -4957,20 +4958,6 @@ function handle:AddDropdown(Config)
 			return Base;
 		end;
 
-		local function GetWindowRoot()
-			local Current = Dropdown;
-			while Current and Current.Parent do
-				if Current.Parent == L2Hub.ScreenGui or (L2Hub.GlobalSurfaceGui and Current.Parent == L2Hub.GlobalSurfaceGui) then
-					return Current;
-				end;
-				Current = Current.Parent;
-			end;
-			if L2Hub.ActiveWindow and L2Hub.ActiveWindow.Root then
-				return L2Hub.ActiveWindow.Root;
-			end;
-			return nil;
-		end;
-
 		local function ComputeTargetSize()
 			local ContentH = UIListLayout.AbsoluteContentSize.Y;
 			if ContentH <= 0 then
@@ -4982,55 +4969,78 @@ function handle:AddDropdown(Config)
 			return W, H;
 		end;
 
-local function SetPosition()
-	if not Dropdown or not Dropdown.Parent then return; end;
-	if not DropdownHandler or not DropdownHandler.Parent then return; end;
-	if not __WinRoot or not __WinRoot.Parent then return; end;
+		local function SetPosition()
+			if not Dropdown or not Dropdown.Parent then return; end;
+			if not DropdownHandler or not DropdownHandler.Parent then return; end;
+			if not __WinRoot or not __WinRoot.Parent then return; end;
 
-	local FullW, FullH = ComputeTargetSize();
+			local FullW, FullH = ComputeTargetSize();
 
-	local winAbs = __WinRoot.AbsolutePosition;
-	local winSize = __WinRoot.AbsoluteSize;
+			local winAbs = __WinRoot.AbsolutePosition;
+			local winSize = __WinRoot.AbsoluteSize;
 
-	local dropAbs = Dropdown.AbsolutePosition;
-	local dropSize = Dropdown.AbsoluteSize;
+			local dropAbs = Dropdown.AbsolutePosition;
+			local dropSize = Dropdown.AbsoluteSize;
 
-	local Pad = 8;
-	local Gap = 6;
+			local Pad = 8;
+			local Gap = 6;
 
-	local dropX = dropAbs.X - winAbs.X;
-	local dropY = dropAbs.Y - winAbs.Y;
+			local dropX = dropAbs.X - winAbs.X;
+			local dropY = dropAbs.Y - winAbs.Y;
 
-	local spaceBelow = winSize.Y - (dropY + dropSize.Y + Gap) - Pad;
-	local spaceAbove = (dropY - Gap) - Pad;
+			local spaceBelow = winSize.Y - (dropY + dropSize.Y + Gap) - Pad;
+			local spaceAbove = (dropY - Gap) - Pad;
 
-	local useBelow;
-	if spaceBelow >= FullH then useBelow = true;
-	elseif spaceAbove >= FullH then useBelow = false;
-	else useBelow = spaceBelow >= spaceAbove; end;
+			local useBelow;
+			if spaceBelow >= FullH then useBelow = true;
+			elseif spaceAbove >= FullH then useBelow = false;
+			else useBelow = spaceBelow >= spaceAbove; end;
 
-	local targetH = FullH;
-	if useBelow and spaceBelow < FullH then
-		targetH = math.max(60, spaceBelow);
-	elseif not useBelow and spaceAbove < FullH then
-		targetH = math.max(60, spaceAbove);
-	end;
+			local targetH = FullH;
+			if useBelow and spaceBelow < FullH then
+				targetH = math.max(60, spaceBelow);
+			elseif not useBelow and spaceAbove < FullH then
+				targetH = math.max(60, spaceAbove);
+			end;
 
-	local posY;
-	if useBelow then
-		posY = dropY + dropSize.Y + Gap;
-	else
-		posY = dropY - Gap - targetH;
-	end;
-	posY = math.clamp(posY, Pad, math.max(Pad, winSize.Y - targetH - Pad));
+			local posY;
+			if useBelow then
+				posY = dropY + dropSize.Y + Gap;
+			else
+				posY = dropY - Gap - targetH;
+			end;
+			posY = math.clamp(posY, Pad, math.max(Pad, winSize.Y - targetH - Pad));
 
-	local posX = dropX + (dropSize.X * 0.5) - (FullW * 0.5);
-	posX = math.clamp(posX, Pad, math.max(Pad, winSize.X - FullW - Pad));
+			local posX = dropX + (dropSize.X * 0.5) - (FullW * 0.5);
+			posX = math.clamp(posX, Pad, math.max(Pad, winSize.X - FullW - Pad));
 
-	DropdownHandler.AnchorPoint = Vector2.new(0, 0);
-	DropdownHandler.Size = UDim2.fromOffset(FullW, targetH);
-	DropdownHandler.Position = UDim2.fromOffset(posX, posY);
-end;
+			DropdownHandler.AnchorPoint = Vector2.new(0, 0);
+			DropdownHandler.Size = UDim2.fromOffset(FullW, targetH);
+			DropdownHandler.Position = UDim2.fromOffset(posX, posY);
+		end;
+
+		local FollowSignal = nil;
+
+		local function StartFollowing()
+			if FollowSignal then
+				FollowSignal:Disconnect();
+				FollowSignal = nil;
+			end;
+			FollowSignal = RunService.RenderStepped:Connect(function()
+				if not DropdownHandler or not DropdownHandler.Parent then return; end;
+				if not DropdownHandler.Visible then return; end;
+				if not Dropdown or not Dropdown.Parent then return; end;
+				if not __WinRoot or not __WinRoot.Parent then return; end;
+				SetPosition();
+			end);
+		end;
+
+		local function StopFollowing()
+			if FollowSignal then
+				FollowSignal:Disconnect();
+				FollowSignal = nil;
+			end;
+		end;
 
 		local function RefreshSize()
 			local ContentH = UIListLayout.AbsoluteContentSize.Y;
@@ -5084,6 +5094,7 @@ end;
 				task.defer(function()
 					if DropdownHandler and DropdownHandler.Visible then
 						SetPosition();
+						StartFollowing();
 					end;
 				end);
 
@@ -5107,6 +5118,8 @@ end;
 					DropdownLib:Generate();
 				end;
 			else
+				StopFollowing();
+
 				L2Hub.PlayAnimate(DropdownHandler , SlowyTween , { BackgroundTransparency = 1 })
 				L2Hub.PlayAnimate(DropdownIcon , SlowyTween , { Rotation = 0 })
 				SearchBox:ReleaseFocus();

@@ -6543,6 +6543,520 @@ function L2Hub:RegisiterItem(Frame: Frame , Signel)
 
 		return CaseInsensitive(Paragraph);
 	end;
+	
+local function __ResolveTone(tone)
+	if typeof(tone) == "Color3" then return tone; end;
+	if type(tone) == "string" then
+		local lower = string.lower(tone);
+		if lower == "success" or lower == "green" then return Color3.fromRGB(135, 255, 143); end;
+		if lower == "warning" or lower == "yellow" then return Color3.fromRGB(255, 200, 100); end;
+		if lower == "error" or lower == "red" then return Color3.fromRGB(255, 102, 105); end;
+		if lower == "muted" or lower == "gray" or lower == "grey" then return Color3.fromRGB(186, 186, 186); end;
+		if lower == "white" then return Color3.fromRGB(255, 255, 255); end;
+	end;
+	return L2Hub.AccentColor;
+end;
+
+function idx:AddStatus(Config)
+	if typeof(Config) ~= "table" then
+		Config = {
+			Name = "Status",
+			Value = tostring(Config or ""),
+		};
+	end;
+
+	Config = L2Hub:ProcessParams(Config , {
+		Name = "Status",
+		Value = "",
+		Tone = "Accent",
+		Color = nil,
+		Suffix = "",
+		Prefix = "",
+		Placeholder = "-",
+		ShowColon = true,
+		Flash = true,
+		Update = nil,
+		UpdateRate = 1,
+		Locked = false,
+		TextLocked = "Locked",
+	});
+
+	local Status = {};
+	local StatusFrame = Instance.new("Frame")
+	local NameLabel = Instance.new("TextLabel")
+	local ValueLabel = Instance.new("TextLabel")
+	local LineFrame = Instance.new("Frame")
+	local UICorner = Instance.new("UICorner")
+
+	L2Hub:AddQuery(StatusFrame , Config.Name);
+
+	StatusFrame.Name = L2Hub.RandomString();
+	StatusFrame.Parent = Frame
+	StatusFrame.BackgroundColor3 = Color3.fromRGB(25, 27, 33)
+	StatusFrame.BackgroundTransparency = 1.000
+	StatusFrame.BorderSizePixel = 0
+	StatusFrame.ClipsDescendants = true
+	StatusFrame.Size = UDim2.new(1, 0, 0, 28)
+	StatusFrame.ZIndex = LayerIndex + 8
+	L2Hub:AttachLockMethods(Status, StatusFrame, Config);
+
+	UICorner.CornerRadius = UDim.new(0, 10)
+	UICorner.Parent = StatusFrame
+
+	NameLabel.Name = L2Hub.RandomString();
+	NameLabel.Parent = StatusFrame
+	NameLabel.BackgroundTransparency = 1.000
+	NameLabel.BorderSizePixel = 0
+	NameLabel.Position = UDim2.new(0, 11, 0, 6)
+	NameLabel.Size = UDim2.new(0.55, -11, 0, 16)
+	NameLabel.ZIndex = LayerIndex + 9
+	NameLabel.Font = Enum.Font.GothamBold
+	NameLabel.TextSize = 13.000
+	NameLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+	NameLabel.TextTransparency = 0.500
+	NameLabel.TextXAlignment = Enum.TextXAlignment.Left
+	NameLabel.TextTruncate = Enum.TextTruncate.AtEnd
+
+	ValueLabel.Name = L2Hub.RandomString();
+	ValueLabel.Parent = StatusFrame
+	ValueLabel.BackgroundTransparency = 1.000
+	ValueLabel.BorderSizePixel = 0
+	ValueLabel.AnchorPoint = Vector2.new(1, 0)
+	ValueLabel.Position = UDim2.new(1, -11, 0, 6)
+	ValueLabel.Size = UDim2.new(0.45, -11, 0, 16)
+	ValueLabel.ZIndex = LayerIndex + 9
+	ValueLabel.Font = Enum.Font.GothamBold
+	ValueLabel.TextSize = 13.000
+	ValueLabel.TextColor3 = L2Hub.AccentColor
+	ValueLabel.TextTransparency = 0.200
+	ValueLabel.TextXAlignment = Enum.TextXAlignment.Right
+	ValueLabel.TextTruncate = Enum.TextTruncate.AtEnd
+
+	LineFrame.Name = L2Hub.RandomString();
+	LineFrame.Parent = StatusFrame
+	LineFrame.AnchorPoint = Vector2.new(0.5, 1)
+	LineFrame.BackgroundColor3 = Color3.fromRGB(45, 48, 58)
+	LineFrame.BackgroundTransparency = 0.650
+	LineFrame.BorderSizePixel = 0
+	LineFrame.Position = UDim2.new(0.5, 0, 1, 0)
+	LineFrame.Size = UDim2.new(1, -20, 0, 1)
+	LineFrame.ZIndex = LayerIndex + 11
+
+	local LastRendered = nil;
+
+	local function ToneColor()
+		return k._color(Config.Color) or __ResolveTone(Config.Tone);
+	end;
+
+	local function RenderValue(value , animate)
+		local text = Config.Prefix .. tostring(value == nil and Config.Placeholder or value) .. Config.Suffix;
+		if text == LastRendered then return; end;
+		local changed = LastRendered ~= nil and LastRendered ~= text;
+		LastRendered = text;
+		ValueLabel.Text = text;
+		L2Hub.PlayAnimate(ValueLabel , SlowyTween , {
+			TextColor3 = ToneColor()
+		});
+		if changed and Config.Flash and animate then
+			L2Hub.PlayAnimate(ValueLabel , ManualTween , { TextTransparency = 0 });
+			task.delay(0.12 , function()
+				if ValueLabel.Parent then
+					L2Hub.PlayAnimate(ValueLabel , SlowyTween , { TextTransparency = 0.200 });
+				end;
+			end);
+		end;
+	end;
+
+	NameLabel.Text = Config.Name .. (Config.ShowColon and " :" or "");
+	RenderValue(Config.Value , false);
+
+	Status.SetRender = LPH_NO_VIRTUALIZE(function(value)
+		if value then
+			L2Hub.PlayAnimate(NameLabel , SlowyTween , { TextTransparency = 0.500 });
+			L2Hub.PlayAnimate(ValueLabel , SlowyTween , { TextTransparency = 0.200 });
+			L2Hub.PlayAnimate(LineFrame , SlowyTween , { BackgroundTransparency = 0.650 });
+		else
+			L2Hub.PlayAnimate(NameLabel , SlowyTween , { TextTransparency = 1 });
+			L2Hub.PlayAnimate(ValueLabel , SlowyTween , { TextTransparency = 1 });
+			L2Hub.PlayAnimate(LineFrame , SlowyTween , { BackgroundTransparency = 1 });
+		end;
+	end);
+
+	L2Hub:AddSignal(StatusFrame.MouseEnter:Connect(LPH_NO_VIRTUALIZE(function()
+		L2Hub.PlayAnimate(StatusFrame , SlowyTween , { BackgroundTransparency = 0.35 });
+	end)));
+
+	L2Hub:AddSignal(StatusFrame.MouseLeave:Connect(LPH_NO_VIRTUALIZE(function()
+		L2Hub.PlayAnimate(StatusFrame , SlowyTween , { BackgroundTransparency = 1 });
+	end)));
+
+	function Status:SetValue(value)
+		RenderValue(value , true);
+		return Status;
+	end;
+
+	function Status:GetValue()
+		return LastRendered;
+	end;
+
+	function Status:SetName(name)
+		Config.Name = tostring(name or "");
+		NameLabel.Text = Config.Name .. (Config.ShowColon and " :" or "");
+		return Status;
+	end;
+
+	function Status:SetTone(tone)
+		Config.Tone = tone;
+		L2Hub.PlayAnimate(ValueLabel , SlowyTween , { TextColor3 = ToneColor() });
+		return Status;
+	end;
+
+	function Status:SetColor(color)
+		Config.Color = color;
+		L2Hub.PlayAnimate(ValueLabel , SlowyTween , { TextColor3 = ToneColor() });
+		return Status;
+	end;
+
+	function Status:SetVisible(value)
+		StatusFrame.Visible = value ~= false;
+		return Status;
+	end;
+
+	if type(Config.Update) == "function" then
+		local Rate = math.max(tonumber(Config.UpdateRate) or 1 , 0.05);
+		local Alive = true;
+		table.insert(Status._listeners or {} , function() Alive = false end);
+		Status._listeners = Status._listeners or {};
+		table.insert(Status._listeners , function() Alive = false end);
+		L2Hub:AddSignal(StatusFrame.Destroying:Connect(function() Alive = false end));
+		task.spawn(function()
+			while Alive and StatusFrame.Parent do
+				local Ok , Val , ToneOrTint = pcall(Config.Update);
+				if Ok then
+					if Val ~= nil then RenderValue(Val , true); end;
+					if ToneOrTint ~= nil then
+						if typeof(ToneOrTint) == "Color3" then
+							Config.Color = ToneOrTint;
+						else
+							Config.Tone = ToneOrTint;
+						end;
+						L2Hub.PlayAnimate(ValueLabel , SlowyTween , { TextColor3 = ToneColor() });
+					end;
+				end;
+				task.wait(Rate);
+			end;
+		end);
+	end;
+
+	Status.SetRender(Signel:GetValue());
+	Signel:Connect(Status.SetRender);
+
+	return CaseInsensitive(Status);
+end;
+
+function idx:AddStatusList(Config)
+	Config = L2Hub:ProcessParams(Config or {} , {
+		Name = "STATUS",
+		Rows = {},
+		Update = nil,
+		UpdateRate = 1,
+		MaxRows = 10,
+		EmptyText = "Nothing yet",
+		ShowColon = true,
+		Flash = true,
+		Locked = false,
+		TextLocked = "Locked",
+	});
+
+	local StatusList = {
+		Rows = {},
+		_RowCache = {},
+		_LastValues = {},
+	};
+
+	local Root = Instance.new("Frame")
+	local UICorner = Instance.new("UICorner")
+	local Header = Instance.new("TextLabel")
+	local ListHolder = Instance.new("ScrollingFrame")
+	local UIListLayout = Instance.new("UIListLayout")
+	local EmptyLabel = Instance.new("TextLabel")
+
+	L2Hub:AddQuery(Root , Config.Name);
+
+	Root.Name = L2Hub.RandomString();
+	Root.Parent = Frame
+	Root.BackgroundColor3 = Color3.fromRGB(25, 27, 33)
+	Root.BackgroundTransparency = 1.000
+	Root.BorderSizePixel = 0
+	Root.ClipsDescendants = true
+	Root.Size = UDim2.new(1, 0, 0, 34)
+	Root.ZIndex = LayerIndex + 8
+	L2Hub:AttachLockMethods(StatusList, Root, Config);
+
+	UICorner.CornerRadius = UDim.new(0, 10)
+	UICorner.Parent = Root
+
+	Header.Name = L2Hub.RandomString();
+	Header.Parent = Root
+	Header.BackgroundTransparency = 1.000
+	Header.BorderSizePixel = 0
+	Header.Position = UDim2.new(0, 11, 0, 6)
+	Header.Size = UDim2.new(1, -22, 0, 16)
+	Header.ZIndex = LayerIndex + 9
+	Header.Font = Enum.Font.GothamBold
+	Header.TextSize = 11.000
+	Header.TextColor3 = Color3.fromRGB(255, 255, 255)
+	Header.TextTransparency = 0.500
+	Header.TextXAlignment = Enum.TextXAlignment.Left
+	Header.TextTruncate = Enum.TextTruncate.AtEnd
+	Header.Text = string.upper(tostring(Config.Name or ""));
+	Header.Visible = Header.Text ~= "";
+
+	local HeaderOffset = Header.Visible and 26 or 4;
+
+	ListHolder.Name = L2Hub.RandomString();
+	ListHolder.Parent = Root
+	ListHolder.Position = UDim2.new(0, 11, 0, HeaderOffset)
+	ListHolder.Size = UDim2.new(1, -22, 0, 0)
+	ListHolder.BackgroundTransparency = 1.000
+	ListHolder.BorderSizePixel = 0
+	ListHolder.ScrollBarThickness = 0
+	ListHolder.ScrollingDirection = Enum.ScrollingDirection.Y
+	ListHolder.CanvasSize = UDim2.new()
+	ListHolder.AutomaticCanvasSize = Enum.AutomaticSize.Y
+	ListHolder.ScrollingEnabled = false
+	ListHolder.ZIndex = LayerIndex + 9
+
+	UIListLayout.Parent = ListHolder
+	UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+	UIListLayout.Padding = UDim.new(0, 2)
+
+	EmptyLabel.Name = L2Hub.RandomString();
+	EmptyLabel.Parent = ListHolder
+	EmptyLabel.BackgroundTransparency = 1.000
+	EmptyLabel.BorderSizePixel = 0
+	EmptyLabel.Size = UDim2.new(1, 0, 0, 20)
+	EmptyLabel.Font = Enum.Font.GothamBold
+	EmptyLabel.TextSize = 12.000
+	EmptyLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+	EmptyLabel.TextTransparency = 0.500
+	EmptyLabel.TextXAlignment = Enum.TextXAlignment.Left
+	EmptyLabel.TextTruncate = Enum.TextTruncate.AtEnd
+	EmptyLabel.Text = Config.EmptyText;
+	EmptyLabel.LayoutOrder = 0;
+
+	local function NormalizeEntry(entry)
+		if type(entry) == "string" then
+			return {
+				Text = entry,
+				Value = nil,
+			};
+		end;
+		if type(entry) ~= "table" then
+			return {
+				Text = tostring(entry),
+				Value = nil,
+			};
+		end;
+		return {
+			Text = entry.Text or entry.Name or entry[1] or "",
+			Value = entry.Value ~= nil and entry.Value or entry[2],
+			Tone = entry.Tone or entry.Color,
+			Suffix = entry.Suffix,
+			Prefix = entry.Prefix,
+		};
+	end;
+
+	local function BuildRow(index)
+		local RowFrame = Instance.new("Frame")
+		local NameLbl = Instance.new("TextLabel")
+		local ValueLbl = Instance.new("TextLabel")
+
+		RowFrame.Name = L2Hub.RandomString();
+		RowFrame.Parent = ListHolder
+		RowFrame.BackgroundTransparency = 1.000
+		RowFrame.BorderSizePixel = 0
+		RowFrame.Size = UDim2.new(1, 0, 0, 20)
+		RowFrame.LayoutOrder = index
+		RowFrame.ZIndex = LayerIndex + 9
+
+		NameLbl.Name = L2Hub.RandomString();
+		NameLbl.Parent = RowFrame
+		NameLbl.BackgroundTransparency = 1.000
+		NameLbl.BorderSizePixel = 0
+		NameLbl.Position = UDim2.new(0, 0, 0, 0)
+		NameLbl.Size = UDim2.new(0.55, 0, 1, 0)
+		NameLbl.Font = Enum.Font.GothamBold
+		NameLbl.TextSize = 12.000
+		NameLbl.TextColor3 = Color3.fromRGB(255, 255, 255)
+		NameLbl.TextTransparency = 0.500
+		NameLbl.TextXAlignment = Enum.TextXAlignment.Left
+		NameLbl.TextTruncate = Enum.TextTruncate.AtEnd
+		NameLbl.ZIndex = LayerIndex + 9
+
+		ValueLbl.Name = L2Hub.RandomString();
+		ValueLbl.Parent = RowFrame
+		ValueLbl.BackgroundTransparency = 1.000
+		ValueLbl.BorderSizePixel = 0
+		ValueLbl.AnchorPoint = Vector2.new(1, 0)
+		ValueLbl.Position = UDim2.new(1, 0, 0, 0)
+		ValueLbl.Size = UDim2.new(0.45, 0, 1, 0)
+		ValueLbl.Font = Enum.Font.GothamBold
+		ValueLbl.TextSize = 12.000
+		ValueLbl.TextColor3 = L2Hub.AccentColor
+		ValueLbl.TextTransparency = 0.200
+		ValueLbl.TextXAlignment = Enum.TextXAlignment.Right
+		ValueLbl.TextTruncate = Enum.TextTruncate.AtEnd
+		ValueLbl.ZIndex = LayerIndex + 9
+
+		return {
+			Frame = RowFrame,
+			Name = NameLbl,
+			Value = ValueLbl,
+		};
+	end;
+
+	local function RefreshSize()
+		local ContentH = math.max(UIListLayout.AbsoluteContentSize.Y , 20);
+		local MaxH = (tonumber(Config.MaxRows) or 10) * 22;
+		local VisibleH = math.min(ContentH , MaxH);
+		local TotalH = HeaderOffset + VisibleH + 6;
+		ListHolder.Size = UDim2.new(1, -22, 0, VisibleH);
+		Root.Size = UDim2.new(1, 0, 0, TotalH);
+		ListHolder.ScrollingEnabled = ContentH > MaxH;
+	end;
+
+	local function RenderRows(rows)
+		StatusList.Rows = {};
+		if type(rows) ~= "table" then rows = {}; end;
+
+		local Count = 0;
+		for i , raw in ipairs(rows) do
+			Count += 1;
+			local Entry = NormalizeEntry(raw);
+			StatusList.Rows[Count] = Entry;
+		end;
+
+		local VisibleCache = StatusList._RowCache;
+
+		for i = 1 , Count do
+			local Entry = StatusList.Rows[i];
+			local RowData = VisibleCache[i];
+			if not RowData then
+				RowData = BuildRow(i);
+				VisibleCache[i] = RowData;
+			end;
+			RowData.Frame.Visible = true;
+			RowData.Frame.LayoutOrder = i;
+
+			local TextStr = tostring(Entry.Text or "");
+			local ValueStr;
+			local ToneTint;
+			if Entry.Value ~= nil then
+				local P = Entry.Prefix or Config.Prefix or "";
+				local S = Entry.Suffix or Config.Suffix or "";
+				ValueStr = P .. tostring(Entry.Value) .. S;
+				ToneTint = k._color(Entry.Tone) or __ResolveTone(Entry.Tone) or L2Hub.AccentColor;
+			else
+				ValueStr = "";
+				ToneTint = L2Hub.AccentColor;
+			end;
+
+			RowData.Name.Text = TextStr .. (Config.ShowColon and Entry.Value ~= nil and " :" or "");
+
+			local Key = TextStr;
+			local LastVal = StatusList._LastValues[Key];
+			local Changed = LastVal ~= nil and LastVal ~= ValueStr;
+
+			RowData.Value.Text = ValueStr;
+			RowData.Value.TextColor3 = ToneTint;
+
+			if Changed and Config.Flash then
+				RowData.Value.TextTransparency = 0;
+				task.delay(0.12 , function()
+					if RowData.Value.Parent then
+						L2Hub.PlayAnimate(RowData.Value , SlowyTween , { TextTransparency = 0.200 });
+					end;
+				end);
+			else
+				RowData.Value.TextTransparency = Entry.Value ~= nil and 0.200 or 1;
+			end;
+
+			StatusList._LastValues[Key] = ValueStr;
+		end;
+
+		for i = Count + 1 , #VisibleCache do
+			VisibleCache[i].Frame.Visible = false;
+		end;
+
+		EmptyLabel.Visible = Count == 0;
+		RefreshSize();
+	end;
+
+	L2Hub:AddSignal(UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(RefreshSize));
+
+	function StatusList:Set(rows)
+		RenderRows(rows);
+		return StatusList;
+	end;
+
+	function StatusList:Get()
+		return StatusList.Rows;
+	end;
+
+	function StatusList:SetName(name)
+		Config.Name = tostring(name or "");
+		Header.Text = string.upper(Config.Name);
+		Header.Visible = Header.Text ~= "";
+		HeaderOffset = Header.Visible and 26 or 4;
+		ListHolder.Position = UDim2.new(0, 11, 0, HeaderOffset);
+		RefreshSize();
+		return StatusList;
+	end;
+
+	function StatusList:SetVisible(value)
+		Root.Visible = value ~= false;
+		return StatusList;
+	end;
+
+	StatusList.SetRender = LPH_NO_VIRTUALIZE(function(value)
+		if value then
+			L2Hub.PlayAnimate(Header , SlowyTween , { TextTransparency = 0.500 });
+			for i , RowData in ipairs(StatusList._RowCache) do
+				L2Hub.PlayAnimate(RowData.Name , SlowyTween , { TextTransparency = 0.500 });
+				L2Hub.PlayAnimate(RowData.Value , SlowyTween , { TextTransparency = RowData.Value.Text ~= "" and 0.200 or 1 });
+			end;
+		else
+			L2Hub.PlayAnimate(Header , SlowyTween , { TextTransparency = 1 });
+			for i , RowData in ipairs(StatusList._RowCache) do
+				L2Hub.PlayAnimate(RowData.Name , SlowyTween , { TextTransparency = 1 });
+				L2Hub.PlayAnimate(RowData.Value , SlowyTween , { TextTransparency = 1 });
+			end;
+		end;
+	end);
+
+	RenderRows(Config.Rows);
+
+	if type(Config.Update) == "function" then
+		local Rate = math.max(tonumber(Config.UpdateRate) or 1 , 0.05);
+		local Alive = true;
+		L2Hub:AddSignal(Root.Destroying:Connect(function() Alive = false end));
+		task.spawn(function()
+			while Alive and Root.Parent do
+				local Ok , NewRows = pcall(Config.Update);
+				if Ok and type(NewRows) == "table" then
+					RenderRows(NewRows);
+				end;
+				task.wait(Rate);
+			end;
+		end);
+	end;
+
+	StatusList.SetRender(Signel:GetValue());
+	Signel:Connect(StatusList.SetRender);
+
+	return CaseInsensitive(StatusList);
+end;
 
 	function idx:AddImage(Config)
 		if typeof(Config) ~= "table" then
@@ -8015,6 +8529,10 @@ function L2Hub:RegisiterItem(Frame: Frame , Signel)
 			error("Name is required for AddTextInput in sections")
 		end
 	end
+	
+	function idx:AddStatusShortcut(Config)
+	    return self:AddStatus(Config);
+    end
 
 	return CaseInsensitive(idx);
 end;
