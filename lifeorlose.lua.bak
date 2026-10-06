@@ -6980,7 +6980,7 @@ function idx:AddStatusList(Config)
 				local P = Entry.Prefix or Config.Prefix or "";
 				local S = Entry.Suffix or Config.Suffix or "";
 				ValueStr = P .. tostring(Entry.Value) .. S;
-				ToneTint = __ResolveTone(Entry.Tone);
+				ToneTint = k._color(Entry.Tone) or __ResolveTone(Entry.Tone) or L2Hub.AccentColor;
 			else
 				ValueStr = "";
 				ToneTint = L2Hub.AccentColor;
