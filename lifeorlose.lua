@@ -873,7 +873,7 @@ end;
 
 if getcustomasset then
 	local link = "https://github.com/4lpaca-pin/L2Hub/blob/main/assets/%s?raw=true";
-	local dir = 'NLAssets';
+	local dir = 'L2Assets';
 
 	if not isfolder(dir) then
 		makefolder(dir);
