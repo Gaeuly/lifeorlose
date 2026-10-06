@@ -5104,7 +5104,19 @@ local SetPosition = LPH_NO_VIRTUALIZE(function()
     end;
 
     local WindowRoot = GetDropdownWindowRoot();
-    local HandlerSize = DropdownHandler.AbsoluteSize;
+
+    local HandlerSize = Vector2.new(
+        DropdownHandler.Size.X.Offset,
+        DropdownHandler.Size.Y.Offset
+    );
+
+    if HandlerSize.X <= 0 or HandlerSize.Y <= 0 then
+        HandlerSize = Vector2.new(
+            DropdownHandler.AbsoluteSize.X,
+            DropdownHandler.AbsoluteSize.Y
+        );
+    end;
+
     local DropX = Dropdown.AbsolutePosition.X;
     local DropY = Dropdown.AbsolutePosition.Y;
     local DropW = Dropdown.AbsoluteSize.X;
@@ -5146,6 +5158,10 @@ local SetPosition = LPH_NO_VIRTUALIZE(function()
     end;
     if HandlerTop + HandlerSize.Y > WinBottom - PadY then
         HandlerTop = WinBottom - PadY - HandlerSize.Y;
+    end;
+
+    if HandlerSize.Y > (WinBottom - WinTop) - (PadY * 2) then
+        HandlerTop = WinTop + PadY;
     end;
 
     DropdownHandler.AnchorPoint = Vector2.new(0, 0);
@@ -5374,7 +5390,7 @@ local SecureSignal;
 				ItemLabel.BackgroundTransparency = 1.000
 				ItemLabel.BorderColor3 = Color3.fromRGB(0, 0, 0)
 				ItemLabel.BorderSizePixel = 0
-				ItemLabel.Position = UDim2.new(0, CustomIcon and (Config.Multi and 50 or 34) or 15, 0, 4)
+				ItemLabel.Position = UDim2.new(0, Config.Multi and (CustomIcon and 50 or 32) or (CustomIcon and 34 or 15), 0, 4)
 				ItemLabel.Size = UDim2.new(0,1, 0, 15)
 				ItemLabel.ZIndex = ZINdex + 1258
 				ItemLabel.Font = Enum.Font.GothamBold
@@ -5446,49 +5462,51 @@ if Config.Multi then
     CheckIcon.Size = UDim2.new(1, -4, 1, -4)
     CheckIcon.ZIndex = ZINdex + 1260
     L2Hub:SetIconMode(CheckIcon, "check")
-    CheckIcon.ImageColor3 = Color3.fromRGB(255, 255, 255)
+    CheckIcon.ImageColor3 = Color3.fromRGB(0, 0, 0)
     CheckIcon.ImageTransparency = 1
     CheckIcon.ScaleType = Enum.ScaleType.Fit
 
-    local VisiblewOfMult = LPH_NO_VIRTUALIZE(function()
-        if DropdownLib.IsMatch(Value) then
-            L2Hub.PlayAnimate(ItemLabel , VSlowTween , {
-                TextTransparency = IsDisabled and 0.600 or 0.200,
-                Position = UDim2.new(0, CustomIcon and 50 or 30, 0, 4)
-            })
+local VisiblewOfMult = LPH_NO_VIRTUALIZE(function()
+    if DropdownLib.IsMatch(Value) then
+        L2Hub.PlayAnimate(ItemLabel , VSlowTween , {
+            TextTransparency = IsDisabled and 0.600 or 0.200,
+            Position = UDim2.new(0, Config.Multi and (CustomIcon and 50 or 32) or (CustomIcon and 34 or 15), 0, 4)
+        })
 
-            L2Hub.PlayAnimate(CheckBox , SlowyTween , {
-                BackgroundColor3 = IsDisabled and Color3.fromRGB(50, 50, 60) or L2Hub.AccentColor
-            })
+        L2Hub.PlayAnimate(CheckBox , SlowyTween , {
+            BackgroundColor3 = IsDisabled and Color3.fromRGB(50, 50, 60) or L2Hub.AccentColor,
+            BackgroundTransparency = 0
+        })
 
-            L2Hub.PlayAnimate(CheckStroke , SlowyTween , {
-                Transparency = 1
-            })
+        L2Hub.PlayAnimate(CheckStroke , SlowyTween , {
+            Transparency = 1
+        })
 
-            L2Hub.PlayAnimate(CheckIcon , SlowyTween , {
-                ImageTransparency = IsDisabled and 0.500 or 0
-            })
+        L2Hub.PlayAnimate(CheckIcon , SlowyTween , {
+            ImageTransparency = IsDisabled and 0.500 or 0
+        })
 
-            Lastone = ItemLabel;
-        else
-            L2Hub.PlayAnimate(ItemLabel , VSlowTween , {
-                TextTransparency = IsDisabled and 0.650 or 0.5,
-                Position = UDim2.new(0, CustomIcon and (Config.Multi and 50 or 34) or 15, 0, 4)
-            })
+        Lastone = ItemLabel;
+    else
+        L2Hub.PlayAnimate(ItemLabel , VSlowTween , {
+            TextTransparency = IsDisabled and 0.650 or 0.5,
+            Position = UDim2.new(0, Config.Multi and (CustomIcon and 50 or 32) or (CustomIcon and 34 or 15), 0, 4)
+        })
 
-            L2Hub.PlayAnimate(CheckBox , SlowyTween , {
-                BackgroundColor3 = Color3.fromRGB(26, 28, 36)
-            })
+        L2Hub.PlayAnimate(CheckBox , SlowyTween , {
+            BackgroundColor3 = Color3.fromRGB(26, 28, 36),
+            BackgroundTransparency = 0
+        })
 
-            L2Hub.PlayAnimate(CheckStroke , SlowyTween , {
-                Transparency = 0.400
-            })
+        L2Hub.PlayAnimate(CheckStroke , SlowyTween , {
+            Transparency = 0.400
+        })
 
-            L2Hub.PlayAnimate(CheckIcon , SlowyTween , {
-                ImageTransparency = 1
-            })
-        end;
-    end);
+        L2Hub.PlayAnimate(CheckIcon , SlowyTween , {
+            ImageTransparency = 1
+        })
+    end;
+end);
 
     MIcon = CheckBox;
     MarkItem = VisiblewOfMult;
@@ -5548,24 +5566,8 @@ if Config.Multi then
 								TextTransparency = 1
 							})
 						end;
-
-if MIcon then
-    L2Hub.PlayAnimate(MIcon , SlowyTween , {
-        BackgroundTransparency = 1
-    })
-
-    local ChildStroke = MIcon:FindFirstChildOfClass("UIStroke");
-    if ChildStroke then
-        L2Hub.PlayAnimate(ChildStroke , SlowyTween , { Transparency = 1 })
-    end;
-
-    local ChildIcon = MIcon:FindFirstChildOfClass("ImageLabel");
-    if ChildIcon then
-        L2Hub.PlayAnimate(ChildIcon , SlowyTween , { ImageTransparency = 1 })
-            end;
-        end;
-    end;
-end)));
+                    end;
+                end)));
 
 				if Config.Multi then
 					local _,bth_signal = L2Hub:CreateInput(ItemFrame , LPH_NO_VIRTUALIZE(function()
