@@ -5055,49 +5055,41 @@ function handle:AddDropdown(Config)
 				WinBottom = L2Hub.ScreenGui.AbsoluteSize.Y;
 			end;
 
-			local PadX = 10;
-			local PadY = 10;
-			local Gap = 4;
+local PadX = 10;
+local PadY = 10;
+local Gap = 4;
 
-			local SpaceBelow = (WinBottom - PadY) - (DropY + DropH + Gap);
-			local SpaceAbove = (DropY - Gap) - (WinTop + PadY);
+local SpaceBelow = (WinBottom - PadY) - (DropY + DropH + Gap);
+local SpaceAbove = (DropY - Gap) - (WinTop + PadY);
 
-			local OpenBelow;
-			if SpaceBelow >= HandlerH then OpenBelow = true;
-			elseif SpaceAbove >= HandlerH then OpenBelow = false;
-			elseif SpaceBelow >= SpaceAbove then OpenBelow = true;
-			else OpenBelow = false; end;
+local OpenBelow = true;
+if SpaceBelow < 60 and SpaceAbove > SpaceBelow then
+    OpenBelow = false;
+end;
 
-			local TargetHeight = HandlerH;
-			if OpenBelow then
-				if SpaceBelow < HandlerH then
-					TargetHeight = math.max(40, SpaceBelow);
-				end;
-			else
-				if SpaceAbove < HandlerH then
-					TargetHeight = math.max(40, SpaceAbove);
-				end;
-			end;
+local TargetHeight = HandlerH;
+if OpenBelow then
+    TargetHeight = math.min(HandlerH, math.max(40, SpaceBelow));
+else
+    TargetHeight = math.min(HandlerH, math.max(40, SpaceAbove));
+end;
 
-			DropdownHandler.Size = UDim2.new(0, HandlerW, 0, TargetHeight);
+DropdownHandler.Size = UDim2.new(0, HandlerW, 0, TargetHeight);
 
-			local HandlerLeft = CenterX - (HandlerW / 2);
-			if HandlerLeft < WinLeft + PadX then HandlerLeft = WinLeft + PadX; end;
-			if HandlerLeft + HandlerW > WinRight - PadX then HandlerLeft = WinRight - PadX - HandlerW; end;
+local HandlerLeft = CenterX - (HandlerW / 2);
+if HandlerLeft < WinLeft + PadX then HandlerLeft = WinLeft + PadX; end;
+if HandlerLeft + HandlerW > WinRight - PadX then HandlerLeft = WinRight - PadX - HandlerW; end;
 
-			local HandlerTop;
-			if OpenBelow then
-				HandlerTop = DropY + DropH + Gap;
-			else
-				HandlerTop = DropY - Gap - TargetHeight;
-			end;
+local HandlerTop;
+if OpenBelow then
+    HandlerTop = DropY + DropH + Gap;
+else
+    HandlerTop = DropY - Gap - TargetHeight;
+end;
 
-			if HandlerTop < WinTop + PadY then HandlerTop = WinTop + PadY; end;
-			if HandlerTop + TargetHeight > WinBottom - PadY then HandlerTop = WinBottom - PadY - TargetHeight; end;
-
-			DropdownHandler.AnchorPoint = Vector2.new(0, 0);
-			DropdownHandler.Position = UDim2.fromOffset(HandlerLeft, HandlerTop);
-		end);
+DropdownHandler.AnchorPoint = Vector2.new(0, 0);
+DropdownHandler.Position = UDim2.fromOffset(HandlerLeft, HandlerTop);
+end);
 
 		DropdownLib.SetFrameRender = LPH_NO_VIRTUALIZE(function(value)
 			DropdownLib.OpenSignal:SetValue(value);
