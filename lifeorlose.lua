@@ -5012,76 +5012,72 @@ function handle:AddDropdown(Config)
 			UpdateDropdownSize();
 		end)));
 
-		DropdownLib.SetPosition = LPH_NO_VIRTUALIZE(function()
-			local Placement = string.lower(tostring(Config.DropdownPosition or "Dropdown"));
+DropdownLib.SetPosition = LPH_NO_VIRTUALIZE(function()
+    local Placement = string.lower(tostring(Config.DropdownPosition or "Dropdown"));
 
-			if Placement == "center" or Placement == "middle" then
-				local WindowRoot = GetDropdownWindowRoot();
-				DropdownHandler.AnchorPoint = Vector2.new(0.5, 0.5);
-				if WindowRoot and WindowRoot.Parent then
-					DropdownHandler.Position = UDim2.fromOffset(
-						WindowRoot.AbsolutePosition.X + (WindowRoot.AbsoluteSize.X / 2),
-						WindowRoot.AbsolutePosition.Y + (WindowRoot.AbsoluteSize.Y / 2)
-					);
-				else
-					DropdownHandler.Position = UDim2.fromOffset(
-						L2Hub.ScreenGui.AbsoluteSize.X / 2,
-						L2Hub.ScreenGui.AbsoluteSize.Y / 2
-					);
-				end;
-				return;
-			end;
+    if Placement == "center" or Placement == "middle" then
+        local WindowRoot = GetDropdownWindowRoot();
+        DropdownHandler.AnchorPoint = Vector2.new(0.5, 0.5);
+        if WindowRoot and WindowRoot.Parent then
+            DropdownHandler.Position = UDim2.fromOffset(
+                WindowRoot.AbsolutePosition.X + (WindowRoot.AbsoluteSize.X / 2),
+                WindowRoot.AbsolutePosition.Y + (WindowRoot.AbsoluteSize.Y / 2)
+            );
+        else
+            DropdownHandler.Position = UDim2.fromOffset(
+                L2Hub.ScreenGui.AbsoluteSize.X / 2,
+                L2Hub.ScreenGui.AbsoluteSize.Y / 2
+            );
+        end;
+        return;
+    end;
 
-			local WindowRoot = GetDropdownWindowRoot();
-			local Body = (WindowRoot and WindowRoot.Parent) and WindowRoot or L2Hub.ScreenGui;
-			local BodyPos = Body.AbsolutePosition;
-			local BodySize = Body.AbsoluteSize;
+    local WindowRoot = GetDropdownWindowRoot();
+    local Body = (WindowRoot and WindowRoot.Parent) and WindowRoot or L2Hub.ScreenGui;
+    local BodyPos = Body.AbsolutePosition;
+    local BodySize = Body.AbsoluteSize;
 
-			local HandlerW = (Dropdown.AbsoluteSize.X + 5) + DropdownLib.ExtentSize;
-			if HandlerW <= 5 then HandlerW = 125; end;
+    local HandlerW = (Dropdown.AbsoluteSize.X + 5) + DropdownLib.ExtentSize;
+    if HandlerW <= 5 then HandlerW = 125; end;
 
-			local DesiredH = GetNaturalHeight();
-			if DesiredH <= 0 then DesiredH = 40; end;
+    local DesiredH = GetNaturalHeight();
+    if DesiredH <= 0 then DesiredH = 40; end;
 
-			local DropX = Dropdown.AbsolutePosition.X;
-			local DropY = Dropdown.AbsolutePosition.Y;
-			local DropW = Dropdown.AbsoluteSize.X;
-			local DropH = Dropdown.AbsoluteSize.Y;
+    local DropX = Dropdown.AbsolutePosition.X;
+    local DropY = Dropdown.AbsolutePosition.Y;
+    local DropW = Dropdown.AbsoluteSize.X;
+    local DropH = Dropdown.AbsoluteSize.Y;
 
-			local BtnRelX = DropX - BodyPos.X;
-			local BtnRelY = DropY - BodyPos.Y;
+    local BtnRelX = DropX - BodyPos.X;
+    local BtnRelY = DropY - BodyPos.Y;
 
-			local Pad = 8;
-			local Gap = 6;
+    local Pad = 8;
+    local Gap = 4;
 
-			local SpaceBelow = (BodySize.Y - Pad) - (BtnRelY + DropH + Gap);
-			local SpaceAbove = (BtnRelY - Gap) - Pad;
+    local OverflowBelow = (BtnRelY + DropH + Gap + DesiredH) > (BodySize.Y - Pad);
+    local RoomAbove = (BtnRelY - Gap - DesiredH) >= Pad;
+    local OpenAbove = OverflowBelow and RoomAbove;
 
-			local MaxSpace = math.max(SpaceBelow, SpaceAbove);
-			local TargetH = math.min(DesiredH, MaxSpace);
-			if TargetH < 40 then TargetH = 40; end;
+    local TargetH;
+    if OpenAbove then
+        TargetH = math.min(DesiredH, math.max(BtnRelY - Gap - Pad, 40));
+    else
+        TargetH = math.min(DesiredH, math.max(BodySize.Y - Pad - (BtnRelY + DropH + Gap), 40));
+    end;
 
-			DropdownHandler.Size = UDim2.new(0, HandlerW, 0, TargetH);
+    DropdownHandler.Size = UDim2.new(0, HandlerW, 0, TargetH);
 
-			local CenterX = BtnRelX + DropW / 2;
-			local Left = CenterX - HandlerW / 2;
-			local MaxLeft = math.max(BodySize.X - HandlerW - Pad, Pad);
-			Left = math.clamp(Left, Pad, MaxLeft);
+    local Left = BtnRelX + DropW - HandlerW;
+    Left = math.clamp(Left, Pad, math.max(BodySize.X - HandlerW - Pad, Pad));
 
-			local Top;
-			if (BtnRelY + DropH + Gap + TargetH) > (BodySize.Y - Pad)
-			and (BtnRelY - Gap - TargetH) >= Pad then
-				Top = BtnRelY - Gap - TargetH;
-			else
-				Top = BtnRelY + DropH + Gap;
-			end;
-
-			local MaxTop = math.max(BodySize.Y - TargetH - Pad, Pad);
-			Top = math.clamp(Top, Pad, MaxTop);
-
-			DropdownHandler.AnchorPoint = Vector2.new(0, 0);
-			DropdownHandler.Position = UDim2.fromOffset(BodyPos.X + Left, BodyPos.Y + Top);
-		end);
+    if OpenAbove then
+        DropdownHandler.AnchorPoint = Vector2.new(0, 1);
+        DropdownHandler.Position = UDim2.fromOffset(BodyPos.X + Left, DropY - Gap);
+    else
+        DropdownHandler.AnchorPoint = Vector2.new(0, 0);
+        DropdownHandler.Position = UDim2.fromOffset(BodyPos.X + Left, DropY + DropH + Gap);
+    end;
+end);
 
 		DropdownLib.SetFrameRender = LPH_NO_VIRTUALIZE(function(value)
 			DropdownLib.OpenSignal:SetValue(value);
