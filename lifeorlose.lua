@@ -4783,9 +4783,10 @@ function L2Hub:RegisiterHandler(Handler: Frame , Signal)
 					BackgroundTransparency = 0
 				});
 
-				L2Hub.PlayAnimate(DropdownIcon , SlowyTween , {
-					TextTransparency = 0.250
-				});
+L2Hub.PlayAnimate(DropdownIcon , SlowyTween , {
+    TextTransparency = 0.250,
+    Rotation = 180
+});
 
 				L2Hub.PlayAnimate(UIStroke , SlowyTween , {
 					Transparency = 0.650
@@ -4799,9 +4800,10 @@ function L2Hub:RegisiterHandler(Handler: Frame , Signal)
 					BackgroundTransparency = 1
 				});
 
-				L2Hub.PlayAnimate(DropdownIcon , SlowyTween , {
-					TextTransparency = 1
-				});
+L2Hub.PlayAnimate(DropdownIcon , SlowyTween , {
+    TextTransparency = 1,
+    Rotation = 0
+});
 
 				L2Hub.PlayAnimate(UIStroke , SlowyTween , {
 					Transparency = 1
@@ -5105,16 +5107,15 @@ local SetPosition = LPH_NO_VIRTUALIZE(function()
 
     local WindowRoot = GetDropdownWindowRoot();
 
-    local HandlerSize = Vector2.new(
-        DropdownHandler.Size.X.Offset,
-        DropdownHandler.Size.Y.Offset
-    );
+    local HandlerW = DropdownHandler.Size.X.Offset;
+    local HandlerH = DropdownHandler.Size.Y.Offset;
 
-    if HandlerSize.X <= 0 or HandlerSize.Y <= 0 then
-        HandlerSize = Vector2.new(
-            DropdownHandler.AbsoluteSize.X,
-            DropdownHandler.AbsoluteSize.Y
-        );
+    if HandlerW <= 0 then
+        HandlerW = DropdownHandler.AbsoluteSize.X;
+    end;
+
+    if HandlerH <= 0 then
+        HandlerH = DropdownHandler.AbsoluteSize.Y;
     end;
 
     local DropX = Dropdown.AbsolutePosition.X;
@@ -5123,9 +5124,6 @@ local SetPosition = LPH_NO_VIRTUALIZE(function()
     local DropH = Dropdown.AbsoluteSize.Y;
 
     local CenterX = DropX + (DropW / 2);
-    local OpenBelow = not L2Hub:MoreThanHalfY(DropY + 85);
-
-    local TargetY = OpenBelow and (DropY + DropH + 5) or (DropY - 5);
 
     local WinLeft, WinTop, WinRight, WinBottom;
     if WindowRoot and WindowRoot.Parent then
@@ -5140,28 +5138,50 @@ local SetPosition = LPH_NO_VIRTUALIZE(function()
         WinBottom = WinTop + L2Hub.ScreenGui.AbsoluteSize.Y;
     end;
 
-    local HandlerLeft = CenterX - (HandlerSize.X / 2);
-    local HandlerTop = OpenBelow and TargetY or (TargetY - HandlerSize.Y);
-
     local PadX = 8;
     local PadY = 8;
+    local Gap = 2;
+
+    local SpaceBelow = (WinBottom - PadY) - (DropY + DropH + Gap);
+    local SpaceAbove = (DropY - Gap) - (WinTop + PadY);
+
+    local OpenBelow;
+    if SpaceBelow >= HandlerH then
+        OpenBelow = true;
+    elseif SpaceAbove >= HandlerH then
+        OpenBelow = false;
+    elseif SpaceBelow >= SpaceAbove then
+        OpenBelow = true;
+    else
+        OpenBelow = false;
+    end;
+
+    local HandlerLeft = CenterX - (HandlerW / 2);
 
     if HandlerLeft < WinLeft + PadX then
         HandlerLeft = WinLeft + PadX;
     end;
-    if HandlerLeft + HandlerSize.X > WinRight - PadX then
-        HandlerLeft = WinRight - PadX - HandlerSize.X;
+
+    if HandlerLeft + HandlerW > WinRight - PadX then
+        HandlerLeft = WinRight - PadX - HandlerW;
+    end;
+
+    local HandlerTop;
+
+    if HandlerH > (WinBottom - WinTop) - (PadY * 2) then
+        HandlerTop = WinTop + PadY;
+    elseif OpenBelow then
+        HandlerTop = DropY + DropH + Gap;
+    else
+        HandlerTop = DropY - Gap - HandlerH;
     end;
 
     if HandlerTop < WinTop + PadY then
         HandlerTop = WinTop + PadY;
     end;
-    if HandlerTop + HandlerSize.Y > WinBottom - PadY then
-        HandlerTop = WinBottom - PadY - HandlerSize.Y;
-    end;
 
-    if HandlerSize.Y > (WinBottom - WinTop) - (PadY * 2) then
-        HandlerTop = WinTop + PadY;
+    if HandlerTop + HandlerH > WinBottom - PadY then
+        HandlerTop = WinBottom - PadY - HandlerH;
     end;
 
     DropdownHandler.AnchorPoint = Vector2.new(0, 0);
