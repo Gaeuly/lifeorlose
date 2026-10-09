@@ -8554,6 +8554,8 @@ end;
 		end
 	end
 	
+	idx.AddInput = idx.AddTextInput;
+	
 	function idx:AddStatusShortcut(Config)
 	    return self:AddStatus(Config);
     end
